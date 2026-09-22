@@ -28,10 +28,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const tempDir = join(process.cwd(), "tmp_uploads");
+  // FIX: Write to writable OS temp directory (/tmp) instead of process.cwd()
+  const tempDir = join(tmpdir(), "tmp_uploads");
   await mkdir(tempDir, { recursive: true });
 
-  const tempPath = join(tempDir, `${Date.now()}-${fileName.replace(/[^a-zA-Z0-9_.-]/g, "_")}`);
+  const tempPath = join(tempDir, `\({Date.now()}-\){fileName.replace(/[^a-zA-Z0-9_.-]/g, "_")}`);
   const buffer = Buffer.from(await uploadedFile.arrayBuffer());
   await writeFile(tempPath, buffer);
 
