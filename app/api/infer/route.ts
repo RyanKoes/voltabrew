@@ -1,4 +1,4 @@
-import { mkdir, writeFile, unlink } from "node:fs/promises";
+import { writeFile, unlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { NextResponse } from "next/server";
@@ -28,11 +28,10 @@ export async function POST(request: Request) {
     );
   }
 
-  // FIX: Write to writable OS temp directory (/tmp) instead of process.cwd()
-  const tempDir = join(tmpdir(), "tmp_uploads");
-  await mkdir(tempDir, { recursive: true });
+  // FIX: Write directly to tmpdir() using correct template literal syntax `${...}`
+  const sanitizedName = fileName.replace(/[^a-zA-Z0-9_.-]/g, "_");
+  const tempPath = join(tmpdir(), `\({Date.now()}-\){sanitizedName}`);
 
-  const tempPath = join(tempDir, `\({Date.now()}-\){fileName.replace(/[^a-zA-Z0-9_.-]/g, "_")}`);
   const buffer = Buffer.from(await uploadedFile.arrayBuffer());
   await writeFile(tempPath, buffer);
 
